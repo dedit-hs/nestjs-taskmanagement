@@ -7,7 +7,11 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/auth/entities/users.entity';
+import { GetUser } from 'src/auth/get-user.decorator';
 import { CreateTaskDto } from 'src/tasks/dtos/create-task.dto';
 import { GetTaskStatusFilterDto } from 'src/tasks/dtos/get-task-filter.dto';
 import { UpdateTaskDto } from 'src/tasks/dtos/update-task.dto';
@@ -15,36 +19,44 @@ import { Task } from 'src/tasks/entities/task.entity';
 import { TasksService } from 'src/tasks/services/tasks/tasks.service';
 
 @Controller('tasks')
+@UseGuards(AuthGuard())
 export class TasksController {
   constructor(private taskService: TasksService) {}
 
   @Get()
-  getTasks(@Query() filterDto: GetTaskStatusFilterDto): Promise<Task[]> {
-    return this.taskService.getTasks(filterDto);
+  getTasks(
+    @Query() filterDto: GetTaskStatusFilterDto,
+    @GetUser() user: User,
+  ): Promise<Task[]> {
+    return this.taskService.getTasks(filterDto, user);
   }
 
   @Get('/:id')
-  getTaskById(@Param('id') id: string): Promise<Task> {
-    return this.taskService.getTaskById(id);
+  getTaskById(@Param('id') id: string, @GetUser() user: User): Promise<Task> {
+    return this.taskService.getTaskById(id, user);
   }
 
   @Post()
-  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-    return this.taskService.createTask(createTaskDto);
+  createTask(
+    @Body() createTaskDto: CreateTaskDto,
+    @GetUser() user: User,
+  ): Promise<Task> {
+    return this.taskService.createTask(createTaskDto, user);
   }
 
   @Delete('/:id')
-  deleteTask(@Param('id') id: string): Promise<void> {
-    return this.taskService.deleteTask(id);
+  deleteTask(@Param('id') id: string, @GetUser() user: User): Promise<void> {
+    return this.taskService.deleteTask(id, user);
   }
 
   @Patch('/:id')
   updateTask(
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
+    @GetUser() user: User,
   ): Promise<Task> {
     const { title, description, status } = updateTaskDto;
-    return this.taskService.updateTask(id, title, description, status);
+    return this.taskService.updateTask(id, title, description, status, user);
   }
 
   // @Get()
