@@ -14,7 +14,7 @@ import { UsersRepository } from './user.repository';
     JwtModule.register({
       secret: 'secretKey',
       signOptions: {
-        expiresIn: '300s',
+        expiresIn: '3600s',
       },
     }),
     TypeOrmModule.forFeature([User]),
